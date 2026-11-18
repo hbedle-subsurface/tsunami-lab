@@ -35,3 +35,7 @@ Travel times use one average depth per route, and wave growth uses Green's law. 
 Race the Wave by Heather Bedle, University of Oklahoma, is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). It is free to use, adapt and share for teaching and learning, with credit, and adaptations need to carry the same license.
 
 Contact: hbedle@ou.edu
+
+## Map data
+
+The Pacific basemap in steps 3 and 4 (`js/pacific.js`) is drawn from Natural Earth 1:50m land polygons (public domain, naturalearthdata.com), via the world-atlas package, in an equirectangular projection centered on 170°E.

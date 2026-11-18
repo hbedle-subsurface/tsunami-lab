@@ -18,12 +18,12 @@ const TSU = (() => {
   // Fixed routes for step 3
   const ROUTES = {
     seaside: { km: 100, depth: 1000 },   // Cascadia rupture to the Oregon coast, mostly over the continental shelf and slope
-    japan: { km: 7700, depth: 4500 }     // Across the North Pacific to northeast Japan
+    japan: { km: 7200, depth: 4500 }     // Across the North Pacific to Otsuchi, northeast Japan (great-circle distance)
   };
   const travelHours = r => r.km / speedKMH(r.depth);
 
   // Step 4: Hunga Tonga 2022 race to Japan (model)
-  const TONGA = { km: 8000, pressureKMH: 700 * 1.609, depth: 4500 };
+  const TONGA = { km: 7800, pressureKMH: 700 * 1.609, depth: 4500 };   // great-circle distance to the Tokyo area
 
   // Step 5: asteroid kinetic energy (megatons of TNT), stony density 3000 kg/m3
   const MT = 4.184e15;
@@ -61,5 +61,21 @@ const TSU = (() => {
     return str.slice(0, 4) + '-' + str.slice(4, 8);
   }
 
-  return { G, speedMS, speedKMH, greens, ROUTES, travelHours, TONGA, impactMt, build, verifyCode, mulberry32 };
+  const R_EARTH = 6371, RAD = Math.PI / 180;
+  function gcKm(lat1, lon1, lat2, lon2) {
+    const a = Math.sin((lat2 - lat1) * RAD / 2) ** 2 + Math.cos(lat1 * RAD) * Math.cos(lat2 * RAD) * Math.sin((lon2 - lon1) * RAD / 2) ** 2;
+    return 2 * R_EARTH * Math.asin(Math.sqrt(a));
+  }
+  // Points on a circle of radius rKm around a center, following the Earth's surface
+  function geoCircle(lat, lon, rKm, n = 180) {
+    const out = [], d = rKm / R_EARTH, la1 = lat * RAD, lo1 = lon * RAD;
+    for (let i = 0; i <= n; i++) {
+      const b = i / n * 2 * Math.PI;
+      const la2 = Math.asin(Math.sin(la1) * Math.cos(d) + Math.cos(la1) * Math.sin(d) * Math.cos(b));
+      const lo2 = lo1 + Math.atan2(Math.sin(b) * Math.sin(d) * Math.cos(la1), Math.cos(d) - Math.sin(la1) * Math.sin(la2));
+      out.push([la2 / RAD, lo2 / RAD]);
+    }
+    return out;
+  }
+  return { gcKm, geoCircle, G, speedMS, speedKMH, greens, ROUTES, travelHours, TONGA, impactMt, build, verifyCode, mulberry32 };
 })();
