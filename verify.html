@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Check a Certificate - Race the Wave</title>
+<link rel="stylesheet" href="css/style.css?v=v1">
+<meta name="robots" content="noindex">
+</head>
+<body>
+<header class="site-header">
+  <div class="title-block">
+    <h1>Check a Certificate</h1>
+    <p class="subtitle">Instructor page for Race the Wave</p>
+  </div>
+</header>
+<main>
+  <section id="step" style="border-radius:10px">
+    <p>Type the student's name exactly as it appears on the certificate, and the scenario number printed at the bottom. This page shows the code the certificate should carry and the student's evacuation scenario.</p>
+    <div class="q">
+      <div class="prompt">Student name</div>
+      <input id="nm" class="name-in" type="text" placeholder="First and last name">
+      <div class="prompt" style="margin-top:10px">Scenario number</div>
+      <input id="sd" type="number" placeholder="e.g. 48213">
+      <div style="margin-top:12px"><button class="btn" id="go" type="button">Check</button></div>
+    </div>
+    <div id="out"></div>
+    <p class="small">Codes are a light check against copied or edited screenshots, not a secure signature.</p>
+  </section>
+</main>
+<script src="js/tsu.js?v=v1"></script>
+<script>
+document.getElementById('go').onclick = () => {
+  const name = document.getElementById('nm').value.trim().replace(/\s+/g, ' ');
+  const seed = parseInt(document.getElementById('sd').value, 10);
+  const out = document.getElementById('out');
+  if (!name || !(seed >= 10000 && seed <= 99999)) { out.innerHTML = '<p class="status no">Enter a name and a five-digit scenario number.</p>'; return; }
+  const sc = TSU.build(seed);
+  out.innerHTML = `<div class="reveal">
+    <p>The certificate for <strong>${name.replace(/</g, '&lt;')}</strong>, scenario ${seed}, should show the code</p>
+    <p class="cert code" style="border:0;padding:0;background:none">${TSU.verifyCode(name, seed)}</p>
+    <table class="data">
+      <tr><th>Speed at 4,000 m</th><td>${Math.round(TSU.speedKMH(4000))} km/h</td></tr>
+      <tr><th>Height at 10 m (from 0.5 m)</th><td>${TSU.greens(0.5, 4000, 10).toFixed(1)} m</td></tr>
+      <tr><th>To Seaside / to Japan</th><td>${Math.round(TSU.travelHours(TSU.ROUTES.seaside) * 60)} min / ${TSU.travelHours(TSU.ROUTES.japan).toFixed(1)} h</td></tr>
+      <tr><th>Tonga pressure wave lead</th><td>${(TSU.TONGA.km / TSU.speedKMH(TSU.TONGA.depth) - TSU.TONGA.km / TSU.TONGA.pressureKMH).toFixed(1)} h</td></tr>
+      <tr><th>Evacuation scenario</th><td>${sc.person.who} (${sc.person.speed} m/s); tsunami at ${sc.arrival} min; high ground ${sc.high} m (${sc.walkHigh.toFixed(1)} min walk); tower ${sc.tower} m</td></tr>
+      <tr><th>Safest choice</th><td>${sc.best === 'high' ? 'high ground' : 'vertical evacuation tower'}</td></tr>
+    </table></div>`;
+};
+</script>
+</body>
+</html>
